@@ -5,6 +5,8 @@ from typing import List, Set, TextIO
 from bs4 import BeautifulSoup
 
 from markdownit.config import Config
+from markdownit.converter import CustomMarkdownConverter
+from markdownit.preprocessor import HTMLPreprocessor
 
 
 # TODO: exceptions
@@ -28,8 +30,6 @@ class MarkdownitApp:
     def run(self):
         """
         TODO
-        send these files do preprocessor
-        output from preprocessor send to converter
         write converted string to file
         """
         html_files: Set[str] = self.get_html_files()  # todo: check file type
@@ -42,6 +42,10 @@ class MarkdownitApp:
                 document: Document = Document(f)
 
             self.logger.info("Processing file: %s", document.file_path)
+
+            HTMLPreprocessor.process(document)
+            md_string: str = CustomMarkdownConverter(document).convert_document()
+            self.create_md_file(md_string)
 
     def get_html_files(self) -> Set[str]:
         """
@@ -69,3 +73,6 @@ class MarkdownitApp:
             elif os.path.isdir(f):
                 files.extend(self.list_dir(f))
         return files
+
+    def create_md_file(self, md_string: str) -> None:
+        pass
